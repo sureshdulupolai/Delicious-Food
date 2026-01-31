@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="auth-card">
+          <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+          <p class="subtitle">Sign in to your account to continue</p>
+
+          <form method="post" id="loginForm">
+            {% csrf_token %}
+
+            <!-- Alerts handled globally in base.html to prevent duplicates -->
+
+            <div class="form-group-wrapper">
+              <label><i class="fas fa-user"></i> Username</label>
+              <input type="text" name="username" class="form-control" placeholder="Enter your username" required>
+            </div>
+
+            <div class="form-group-wrapper">
+              <label><i class="fas fa-lock"></i> Password</label>
+              <div class="input-group">
+                <input type="password" name="password" class="form-control password-field" placeholder="Enter your password" required>
+                <button type="button" class="btn btn-outline-secondary toggle-password" tabindex="-1">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 mt-4">
+              <i class="fas fa-arrow-right"></i> Sign In
+            </button>
+          </form>
+
+          <hr class="my-4" style="border-color: #e0e0e0;">
+          
+          <p class="text-center text-muted mb-0">
+            Don't have an account? <a href="{% url 'register' %}" class="auth-link">Create one</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.alert-custom {
+  border-radius: 10px;
+  border: none;
+  padding: 14px 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  animation: slideInDown 0.4s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.alert-custom::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: inherit;
+}
+
+.alert-custom.alert-error {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border-left: 5px solid #dc2626;
+}
+
+.alert-custom.alert-success {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534;
+  border-left: 5px solid #16a34a;
+}
+
+.alert-custom.alert-warning {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border-left: 5px solid #f59e0b;
+}
+
+.btn-close {
+  filter: none;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+  width: 20px;
+  height: 20px;
+}
+
+.btn-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.input-group .toggle-password {
+  border-left: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.input-group .toggle-password:hover {
+  background-color: #f0f0f0;
+}
+
+.input-group .toggle-password:active {
+  background-color: #e0e0e0;
+}
+
+.form-control:focus ~ .toggle-password {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(0, 150, 136, 0.25);
+}
+</style>
+
+<script>
+document.querySelectorAll('.toggle-password').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const field = this.closest('.input-group').querySelector('.password-field');
+    const icon = this.querySelector('i');
+    
+    if (field.type === 'password') {
+      field.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+      this.title = 'Hide password';
+    } else {
+      field.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+      this.title = 'Show password';
+    }
+  });
+});
+
+// Auto-dismiss alerts after 5 seconds with fade effect
+document.querySelectorAll('.alert-custom').forEach(alert => {
+  setTimeout(() => {
+    alert.style.transition = 'all 0.5s ease-out';
+    alert.style.opacity = '0';
+    alert.style.transform = 'translateY(-10px)';
+    setTimeout(() => {
+      alert.remove();
+    }, 500);
+  }, 5000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ recipe.title }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row">
+    <div class="col-md-8">
+      {% if recipe.image %}
+      <div class="mb-4">
+        <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" class="img-fluid rounded-4 shadow-sm" style="width: 100%; max-height: 400px; object-fit: cover;">
+      </div>
+      {% endif %}
+      
+      <div class="card rounded-4 shadow-sm p-5 border-0">
+        <h2 class="mb-2">{{ recipe.title }}</h2>
+        <p class="text-muted mb-4">{{ recipe.short_description }}</p>
+        
+        <div class="d-flex gap-4 align-items-center mb-4 pb-4 border-bottom">
+          <div>
+            <small class="text-muted"><i class="fas fa-user"></i> By {{ recipe.author.username }}</small>
+          </div>
+          <div>
+            <small class="text-muted"><i class="fas fa-calendar"></i> {{ recipe.created_at|date:"d M Y" }}</small>
+          </div>
+          <div>
+            <small class="text-warning"><i class="fas fa-star"></i> {{ recipe.avg_rating }} rating</small>
+          </div>
+          <div>
+            <small class="text-muted"><i class="fas fa-heart"></i> {{ recipe.like_count }} likes</small>
+          </div>
+        </div>
+
+        <h5 class="mt-4 mb-3"><i class="fas fa-list-ul"></i> Ingredients</h5>
+        <div style="background: #f9f5ff; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+          {{ recipe.ingredients|linebreaks }}
+        </div>
+
+        <h5 class="mb-3"><i class="fas fa-shoe-prints"></i> Instructions</h5>
+        <div style="background: #f9f5ff; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+          {{ recipe.steps|linebreaks }}
+        </div>
+
+        <div class="d-flex gap-3 align-items-center mt-4">
+          <form method="post" class="d-inline">{% csrf_token %}<button name="like" class="btn btn-outline-primary"><i class="fas fa-heart"></i> Like ({{ recipe.like_count }})</button></form>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <h5 class="mb-4"><i class="fas fa-comments"></i> Comments ({{ recipe.comments.count }})</h5>
+        {% for c in recipe.comments.all %}
+        <div class="card mb-3 p-4 rounded-3 border-0 shadow-sm">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <strong>{{ c.user.username }}</strong>
+            <small class="text-muted">{{ c.created_at|date:"d M Y, H:i" }}</small>
+          </div>
+          <div>{{ c.content }}</div>
+        </div>
+        {% empty %}
+        <p class="text-muted">No comments yet. Be the first to comment!</p>
+        {% endfor %}
+
+        <div class="mt-4">
+          {% if user.is_authenticated %}
+          <form method="post">{% csrf_token %}
+            <h6 class="mb-3">Leave a Comment</h6>
+            <textarea class="form-control mb-3 rounded-3" name="content" rows="4" placeholder="Share your thoughts..." required></textarea>
+            <button name="comment" class="btn btn-primary"><i class="fas fa-comment"></i> Post Comment</button>
+          </form>
+          {% else %}
+          <div class="alert alert-info"><i class="fas fa-info-circle"></i> Please <a href="{% url 'login' %}" class="alert-link">login</a> to comment.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card rounded-4 shadow-sm p-4 border-0 mb-3">
+        <h6 class="mb-3"><i class="fas fa-info-circle"></i> Recipe Info</h6>
+        <hr>
+        <p class="small mb-2"><strong>Author:</strong> {{ recipe.author.username }}</p>
+        <p class="small mb-2"><strong>Category:</strong> {{ recipe.category.name|default:"Uncategorized" }}</p>
+        <p class="small mb-2"><strong>Created:</strong> {{ recipe.created_at|date:"d M Y" }}</p>
+        <p class="small"><strong>Status:</strong> <span class="badge bg-success">Approved</span></p>
+      </div>
+
+      {% if user == recipe.author %}
+      <div class="card rounded-4 shadow-sm p-4 border-0">
+        <h6 class="mb-3"><i class="fas fa-cog"></i> Manage</h6>
+        <a class="btn btn-outline-secondary w-100 mb-2" href="{% url 'recipe_edit' recipe.slug %}"><i class="fas fa-edit"></i> Edit Recipe</a>
+        <form method="post" action="{% url 'recipe_delete' recipe.slug %}" class="d-inline w-100">{% csrf_token %}<button class="btn btn-danger w-100"><i class="fas fa-trash"></i> Delete</button></form>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

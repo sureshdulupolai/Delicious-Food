@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Server Error{% endblock %}
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 text-center">
+        <div style="margin-bottom: 2rem;">
+          <div style="font-size: 6rem; color: #d946a6; font-weight: 700; margin-bottom: 1rem;">500</div>
+          <h2 style="font-size: 2rem; color: #1a1a1a; margin-bottom: 1rem;">Server Error</h2>
+          <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 2rem;">Oops! Something went wrong on our end. Our team has been notified and is working to fix it.</p>
+        </div>
+
+        <div class="d-flex gap-3 justify-content-center">
+          <a href="{% url 'home' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-home"></i> Go Home
+          </a>
+          <a href="javascript:location.reload()" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-sync"></i> Retry
+          </a>
+        </div>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e0e0e0;">
+          <p class="text-muted small">If this persists, please <a href="javascript:void(0)" class="auth-link">contact support</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

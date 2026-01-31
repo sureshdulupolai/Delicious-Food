@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h3>Admin Dashboard</h3>
+  <div class="row">
+    <div class="col-md-6">
+      <h5>Pending Recipes</h5>
+      {% for r in pending %}
+      <div class="card mb-2 p-2">
+        <div class="d-flex justify-content-between">
+          <div>
+            <strong>{{ r.title }}</strong>
+            <div class="small text-muted">by {{ r.author.username }}</div>
+          </div>
+          <div>
+            <form method="post" action="">
+              {% csrf_token %}
+              <a href="{% url 'recipe_detail' r.slug %}" class="btn btn-sm btn-outline-secondary">View</a>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted">No pending recipes.</p>
+      {% endfor %}
+    </div>
+    <div class="col-md-6">
+      <h5>Feedback</h5>
+      {% for f in feedbacks %}
+      <div class="card mb-2 p-3">
+        <div class="small text-muted">{{ f.user }} • {{ f.created_at }}</div>
+        <div>{{ f.message }}</div>
+      </div>
+      {% empty %}
+      <p class="text-muted">No feedback yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <h5 class="mt-4">Users</h5>
+  <div class="list-group">
+    {% for u in users %}
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div>{{ u.username }} <small class="text-muted">{{ u.email }}</small></div>
+        <div class="small text-muted">{{ u.is_staff|yesno:"Staff,User" }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

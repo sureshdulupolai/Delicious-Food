@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Confirm Delete{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card p-4">
+        <h5>Delete {{ object.title }}?</h5>
+        <form method="post">{% csrf_token %}
+          <button class="btn btn-danger">Confirm Delete</button>
+          <a href="{% url 'recipe_detail' object.slug %}" class="btn btn-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

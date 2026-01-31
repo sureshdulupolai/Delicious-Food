@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div style="min-height: 100vh; padding: 40px 0; background: linear-gradient(135deg, #f5f7fa 0%, #f9fafb 100%);">
+  <div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="profile-header card shadow-sm border-0">
+          <div class="card-body p-5">
+            <div class="row align-items-center">
+              <div class="col-md-3 text-center mb-4 mb-md-0">
+                <div class="profile-avatar-container">
+                  <img src="{{ user_profile.profile_image.url }}" alt="{{ user.username }}" class="profile-avatar">
+                </div>
+              </div>
+              <div class="col-md-9">
+                <h1 class="mb-2"><i class="fas fa-user-circle"></i> {{ user.get_full_name|default:user.username }}</h1>
+                <p class="text-muted mb-2"><i class="fas fa-at"></i> @{{ user.username }}</p>
+                <p class="text-muted mb-0"><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                <p class="mt-3 text-muted">
+                  <i class="fas fa-calendar"></i> Member since {{ user.date_joined|date:"M d, Y" }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts are rendered globally in base.html to avoid duplicates -->
+
+    <div class="row">
+      <!-- Profile Image Form -->
+      <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-primary text-white border-0 py-3">
+            <h5 class="mb-0"><i class="fas fa-image"></i> Profile Photo</h5>
+          </div>
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="profileForm">
+              {% csrf_token %}
+              <input type="hidden" name="update_profile" value="1">
+              
+              <div class="mb-4">
+                <div class="profile-preview-container mb-3">
+                  <img id="profilePreview" src="{% if user_profile.profile_image %}{{ user_profile.profile_image.url }}{% else %}{{ user_profile.profile_image.url }}{% endif %}" alt="Preview" class="profile-preview">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label"><i class="fas fa-upload"></i> Choose Photo</label>
+                  <input type="file" name="profile_image" class="form-control" accept="image/*" id="profileImageInput">
+                  <small class="text-muted d-block mt-2">
+                    <i class="fas fa-info-circle"></i> JPG, PNG or GIF (Max 5MB)
+                  </small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"><i class="fas fa-comment"></i> Bio</label>
+                <textarea name="bio" class="form-control" rows="4" placeholder="Tell us about yourself...">{{ user_profile.bio }}</textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100 py-2 mt-3">
+                <i class="fas fa-save"></i> Save Profile
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Two Forms -->
+      <div class="col-lg-8">
+        <!-- User Info Form -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-primary text-white border-0 py-3">
+            <h5 class="mb-0"><i class="fas fa-user-edit"></i> Account Information</h5>
+          </div>
+          <div class="card-body p-4">
+            <form method="post" id="infoForm">
+              {% csrf_token %}
+              <input type="hidden" name="update_info" value="1">
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"><i class="fas fa-user"></i> Username</label>
+                  <input type="text" name="username" class="form-control" value="{{ user.username }}" required>
+                  {% if info_form.username.errors %}
+                    <small class="text-danger d-block mt-1">{{ info_form.username.errors.0 }}</small>
+                  {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
+                  <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                  {% if info_form.email.errors %}
+                    <small class="text-danger d-block mt-1">{{ info_form.email.errors.0 }}</small>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"><i class="fas fa-user-tie"></i> First Name</label>
+                  <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" placeholder="Optional">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"><i class="fas fa-user-tie"></i> Last Name</label>
+                  <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" placeholder="Optional">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary py-2 mt-3">
+                <i class="fas fa-save"></i> Update Information
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Change Password Form -->
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-warning text-white border-0 py-3">
+            <h5 class="mb-0"><i class="fas fa-lock"></i> Change Password</h5>
+          </div>
+          <div class="card-body p-4">
+            <form method="post" id="passwordForm">
+              {% csrf_token %}
+              <input type="hidden" name="change_password" value="1">
+
+              <div class="mb-3">
+                <label class="form-label"><i class="fas fa-lock"></i> Current Password</label>
+                <div class="input-group">
+                  <input type="password" name="current_password" class="form-control current-password-field" placeholder="Enter your current password" required>
+                  <button type="button" class="btn btn-outline-secondary toggle-password-btn" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+                {% if password_form.current_password.errors %}
+                  <small class="text-danger d-block mt-1"><i class="fas fa-exclamation-circle"></i> {{ password_form.current_password.errors.0 }}</small>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label"><i class="fas fa-key"></i> New Password</label>
+                <div class="input-group">
+                  <input type="password" name="new_password1" class="form-control new-password-field" placeholder="Enter new password" required>
+                  <button type="button" class="btn btn-outline-secondary toggle-password-btn" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+                {% if password_form.new_password1.errors %}
+                  <small class="text-danger d-block mt-1"><i class="fas fa-exclamation-circle"></i> {{ password_form.new_password1.errors.0 }}</small>
+                {% endif %}
+                <small class="text-muted d-block mt-2">
+                  <i class="fas fa-info-circle"></i> At least 8 characters, must be different from current
+                </small>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label"><i class="fas fa-check-circle"></i> Confirm New Password</label>
+                <div class="input-group">
+                  <input type="password" name="new_password2" class="form-control new-password-field" placeholder="Confirm new password" required>
+                  <button type="button" class="btn btn-outline-secondary toggle-password-btn" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+                {% if password_form.new_password2.errors %}
+                  <small class="text-danger d-block mt-1"><i class="fas fa-exclamation-circle"></i> {{ password_form.new_password2.errors.0 }}</small>
+                {% endif %}
+              </div>
+
+              {% if password_form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                  <i class="fas fa-exclamation-circle"></i> {{ password_form.non_field_errors.0 }}
+                </div>
+              {% endif %}
+
+              <button type="submit" class="btn btn-warning py-2 mt-3">
+                <i class="fas fa-save"></i> Change Password
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+:root {
+  --primary: #009688;
+}
+
+.profile-header {
+  background: white;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.profile-header:hover {
+  box-shadow: 0 5px 20px rgba(0, 150, 136, 0.1) !important;
+}
+
+.profile-avatar-container {
+  position: relative;
+  margin: 0 auto;
+}
+
+.profile-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--primary);
+  box-shadow: 0 4px 15px rgba(0, 150, 136, 0.2);
+}
+
+.profile-avatar-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #00897b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: white;
+  margin: 0 auto;
+  box-shadow: 0 4px 15px rgba(0, 150, 136, 0.2);
+}
+
+.profile-avatar-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #00897b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: white;
+  margin: 0 auto;
+  box-shadow: 0 4px 15px rgba(0, 150, 136, 0.2);
+}
+
+.profile-preview-container {
+  text-align: center;
+}
+
+.profile-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+  box-shadow: 0 2px 10px rgba(0, 150, 136, 0.2);
+}
+
+.profile-preview-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  margin: 0 auto;
+  box-shadow: inset 0 2px 8px rgba(0, 150, 136, 0.1), 0 2px 10px rgba(0, 150, 136, 0.2);
+}
+
+.card {
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
+  font-weight: 600;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(0, 150, 136, 0.25);
+}
+
+.input-group .toggle-password-btn {
+  border-left: none;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.input-group .toggle-password-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.input-group .toggle-password-btn:active {
+  background-color: #e0e0e0;
+}
+
+.form-control:focus ~ .toggle-password-btn {
+  border-color: var(--primary);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #00897b;
+  border-color: #00897b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 150, 136, 0.3);
+}
+
+.btn-warning {
+  background-color: #ff9800;
+  border-color: #ff9800;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+  background-color: #e68900;
+  border-color: #e68900;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.alert-custom {
+  border-radius: 10px;
+  border: none;
+  padding: 14px 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  animation: slideInDown 0.4s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.alert-custom::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: inherit;
+}
+
+.alert-custom.alert-error {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border-left: 5px solid #dc2626;
+}
+
+.alert-custom.alert-success {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534;
+  border-left: 5px solid #16a34a;
+}
+
+.alert-custom.alert-warning {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border-left: 5px solid #f59e0b;
+}
+
+.btn-close {
+  filter: none;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+  width: 20px;
+  height: 20px;
+}
+
+.btn-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile-avatar-placeholder {
+    width: 100px;
+    height: 100px;
+  }
+
+  .card-body {
+    padding: 1.5rem !important;
+  }
+}
+</style>
+
+<script>
+// File input preview
+document.getElementById('profileImageInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const preview = document.getElementById('profilePreview');
+      
+      // If it's a div placeholder, convert it to an img
+      if (preview.tagName === 'DIV') {
+        const img = document.createElement('img');
+        img.id = 'profilePreview';
+        img.className = 'profile-preview';
+        img.alt = 'Preview';
+        img.src = event.target.result;
+        preview.replaceWith(img);
+      } else if (preview.tagName === 'IMG') {
+        // If it's already an img, just update the src
+        preview.src = event.target.result;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Password visibility toggle
+document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const field = this.closest('.input-group').querySelector('[type="password"], [type="text"]');
+    const icon = this.querySelector('i');
+    
+    if (field.type === 'password') {
+      field.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+      this.title = 'Hide password';
+    } else {
+      field.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+      this.title = 'Show password';
+    }
+  });
+});
+
+// Auto-dismiss alerts after 5 seconds with fade effect
+document.querySelectorAll('.alert-custom').forEach(alert => {
+  setTimeout(() => {
+    alert.style.transition = 'all 0.5s ease-out';
+    alert.style.opacity = '0';
+    alert.style.transform = 'translateY(-10px)';
+    setTimeout(() => {
+      alert.remove();
+    }, 500);
+  }, 5000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero py-5" style="background: linear-gradient(135deg,#f7e8ff 0%, #ffd6e8 100%);">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h1 class="display-4 fw-bold mb-3">Discover & Share Delicious Recipes</h1>
+        <p class="lead text-muted mb-4">Join thousands of food lovers sharing home-made recipes. Rate, comment, and explore culinary creations from around the world.</p>
+        <p class="gap-3">
+          <a href="{% url 'recipe_list' %}" class="btn btn-lg btn-primary">
+            <i class="fas fa-search"></i> Browse Recipes
+          </a>
+          <a href="{% url 'recipe_create' %}" class="btn btn-lg btn-outline-dark">
+            <i class="fas fa-plus"></i> Share Recipe
+          </a>
+        </p>
+      </div>
+      <div class="col-md-6 text-center">
+        <img src="{% static 'img/hero-food.svg' %}" class="img-fluid rounded shadow-lg" alt="food" style="max-width: 100%;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container py-5">
+  <h2>Why Delicious?</h2>
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="card rounded-4 shadow-sm p-4 border-0">
+        <div class="feature-icon">
+          <i class="fas fa-book-open"></i>
+        </div>
+        <h5>Explore Recipes</h5>
+        <p class="small text-muted">Browse curated recipes across all cuisines and dietary preferences.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card rounded-4 shadow-sm p-4 border-0">
+        <div class="feature-icon">
+          <i class="fas fa-upload"></i>
+        </div>
+        <h5>Share Your Creation</h5>
+        <p class="small text-muted">Publish your recipes and become part of our growing community.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card rounded-4 shadow-sm p-4 border-0">
+        <div class="feature-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <h5>Rate & Comment</h5>
+        <p class="small text-muted">Provide feedback and engage with fellow food enthusiasts.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card rounded-4 shadow-sm p-4 border-0">
+        <div class="feature-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h5>Community Moderation</h5>
+        <p class="small text-muted">Quality recipes approved by our admin team.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container py-5">
+  <h2>Popular Categories</h2>
+  <div class="row g-3">
+    {% for cat in categories %}
+    <div class="col-md-2 col-sm-4 col-6">
+      <div class="card rounded-4 shadow-sm border-0 p-3 text-center h-100">
+        <div class="mb-2" style="font-size: 2rem;">
+          <i class="fas fa-utensils"></i>
+        </div>
+        <h6 class="mb-0">{{ cat.name }}</h6>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container py-5 text-center">
+  <div style="background: linear-gradient(135deg, rgba(111, 45, 189, 0.05), rgba(217, 70, 166, 0.05)); padding: 4rem 2rem; border-radius: 20px;">
+    <h4 class="mb-2"><i class="fas fa-heart"></i> Loved by Food Lovers</h4>
+    <p class="text-muted mb-0">Join thousands of home cooks sharing their favorite recipes and discovering new culinary ideas every day.</p>
+  </div>
+</section>
+{% endblock %}

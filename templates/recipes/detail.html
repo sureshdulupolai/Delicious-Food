@@ -1,113 +1,302 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}{{ recipe.title }}{% endblock %}
+
 {% block content %}
+
+<!-- ================= CONFIRM MODAL ================= -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Confirm Action</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body text-center">
+                <p id="confirmMessage"></p>
+            </div>
+
+            <div class="modal-footer border-0 justify-content-center">
+                <form method="post" id="confirmForm">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger">Yes Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ================= TOAST ================= -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="likeToast" class="toast text-bg-success border-0">
+        <div class="toast-body">Action completed ✔</div>
+    </div>
+</div>
+
+
+
 <div class="container py-5">
-  <div class="row">
-    <div class="col-md-8">
-      {% if recipe.image %}
-      <div class="mb-4">
-        <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" class="img-fluid rounded-4 shadow-sm" style="width: 100%; max-height: 400px; object-fit: cover;">
-      </div>
-      {% endif %}
-      
-      <div class="card rounded-4 shadow-sm p-5 border-0">
-        <h2 class="mb-2">{{ recipe.title }}</h2>
-        <p class="text-muted mb-4">{{ recipe.short_description }}</p>
-        
-        <div class="d-flex gap-4 align-items-center mb-4 pb-4 border-bottom">
-          <div>
-            <small class="text-muted"><i class="fas fa-user"></i> By {{ recipe.author.username }}</small>
-          </div>
-          <div>
-            <small class="text-muted"><i class="fas fa-calendar"></i> {{ recipe.created_at|date:"d M Y" }}</small>
-          </div>
-          <div>
-            <small class="text-warning"><i class="fas fa-star"></i> {{ recipe.avg_rating }} rating</small>
-          </div>
-          <div>
-            <small class="text-muted"><i class="fas fa-heart"></i> {{ recipe.like_count }} likes</small>
-          </div>
+<div class="row">
+
+<!-- ================================================= -->
+<!-- LEFT SIDE -->
+<!-- ================================================= -->
+<div class="col-md-8">
+
+    {% if recipe.image %}
+    <img src="{{ recipe.image.url }}"
+         class="img-fluid rounded-4 shadow-sm mb-4"
+         style="max-height:400px;width:100%;object-fit:cover;">
+    {% endif %}
+
+
+    <div class="card rounded-4 shadow-sm p-5 border-0">
+
+        <h2 class="fw-bold">{{ recipe.title }}</h2>
+        <p class="text-muted">{{ recipe.short_description }}</p>
+
+        <div class="d-flex gap-4 small text-muted border-bottom pb-3 mb-4">
+            <span>👤 {{ recipe.author.username }}</span>
+            <span>📅 {{ recipe.created_at|date:"d M Y" }}</span>
+            <span>⭐ {{ recipe.avg_rating }}</span>
+            <span>❤️ {{ recipe.like_count }}</span>
         </div>
 
-        <h5 class="mt-4 mb-3"><i class="fas fa-list-ul"></i> Ingredients</h5>
-        <div style="background: #f9f5ff; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
-          {{ recipe.ingredients|linebreaks }}
+
+        <!-- ================= INGREDIENTS ================= -->
+        <h5>Ingredients</h5>
+        <div class="bg-light p-3 rounded-3 mb-4">
+            {{ recipe.ingredients|linebreaks }}
         </div>
 
-        <h5 class="mb-3"><i class="fas fa-shoe-prints"></i> Instructions</h5>
-        <div style="background: #f9f5ff; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
-          {{ recipe.steps|linebreaks }}
+
+        <!-- ================= STEPS ================= -->
+        <h5>Instructions</h5>
+        <div class="bg-light p-3 rounded-3 mb-4">
+            {{ recipe.steps|linebreaks }}
         </div>
 
-        <div class="d-flex gap-3 align-items-center mt-4">
-          <form method="post" class="d-inline">{% csrf_token %}<button name="like" class="btn btn-outline-primary"><i class="fas fa-heart"></i> Like ({{ recipe.like_count }})</button></form>
-        </div>
-      </div>
 
-      <div class="mt-5">
-        <h5 class="mb-4"><i class="fas fa-comments"></i> Comments ({{ recipe.comments.count }})</h5>
+
+        <!-- ================================================= -->
+        <!-- LIKE + RATING -->
+        <!-- ================================================= -->
+        <div class="border-top pt-4 mt-4">
+
+            <div class="d-flex align-items-center gap-4 flex-wrap">
+
+                <!-- ❤️ LIKE BUTTON -->
+                <form method="post" class="like-form">
+                    {% csrf_token %}
+
+                    {% if user_liked %}
+                    <button name="dislike"
+                            class="btn btn-danger btn-sm px-4 like-btn bordered-btn">
+                        <i class="fas fa-heart-broken"></i> Dislike
+                    </button>
+                    {% else %}
+                    <button name="like"
+                            class="btn btn-outline-success btn-sm px-4 like-btn bordered-btn">
+                        <i class="fas fa-heart"></i> Like
+                    </button>
+                    {% endif %}
+                </form>
+
+
+
+                <!-- ⭐ RATING -->
+                <form method="post" id="ratingForm" class="d-flex align-items-center gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="rate" value="1">
+                    <input type="hidden" name="score" id="ratingInput" value="{{ user_rating|default:0 }}">
+
+                    <div id="starContainer" class="d-flex">
+                        {% for i in "12345" %}
+                        <i class="fas fa-star star" data-value="{{ forloop.counter }}"></i>
+                        {% endfor %}
+                    </div>
+
+                    <button class="btn btn-warning btn-sm ms-2">Rate</button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- COMMENTS -->
+    <!-- ================================================= -->
+    <div class="mt-5">
+
+        <h5 class="mb-3">Comments ({{ recipe.comments.count }})</h5>
+
         {% for c in recipe.comments.all %}
-        <div class="card mb-3 p-4 rounded-3 border-0 shadow-sm">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <strong>{{ c.user.username }}</strong>
-            <small class="text-muted">{{ c.created_at|date:"d M Y, H:i" }}</small>
-          </div>
-          <div>{{ c.content }}</div>
+        <div class="card comment-card p-3 mb-2 {% if forloop.counter > 3 %}d-none extra-comment{% endif %}">
+            <!-- top row -->
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-bold">{{ c.user.username }}</span>
+                <span class="text-muted small">{{ c.created_at|date:"d M Y, H:i" }}</span>
+            </div>
+
+            <!-- comment text -->
+            <div>
+                {{ c.content }}
+            </div>
         </div>
         {% empty %}
-        <p class="text-muted">No comments yet. Be the first to comment!</p>
+        <p class="text-muted">No comments yet.</p>
         {% endfor %}
 
-        <div class="mt-4">
-          {% if user.is_authenticated %}
-          <form method="post">{% csrf_token %}
-            <h6 class="mb-3">Leave a Comment</h6>
-            <textarea class="form-control mb-3 rounded-3" name="content" rows="4" placeholder="Share your thoughts..." required></textarea>
-            <button name="comment" class="btn btn-primary"><i class="fas fa-comment"></i> Post Comment</button>
-          </form>
-          {% else %}
-          <div class="alert alert-info"><i class="fas fa-info-circle"></i> Please <a href="{% url 'login' %}" class="alert-link">login</a> to comment.</div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
 
-    <div class="col-md-4">
-      <div class="card rounded-4 shadow-sm p-4 border-0 mb-3">
-        <h6 class="mb-3"><i class="fas fa-info-circle"></i> Recipe Info</h6>
-        <hr>
-        <p class="small mb-2"><strong>Author:</strong> {{ recipe.author.username }}</p>
-        <p class="small mb-2"><strong>Category:</strong> {{ recipe.category.name|default:"Uncategorized" }}</p>
-        <p class="small mb-2"><strong>Created:</strong> {{ recipe.created_at|date:"d M Y" }}</p>
-        <p class="small"><strong>Status:</strong> 
-          {% if recipe.approved %}
-            <span class="badge bg-success">Approved</span>
-          {% else %}
-            <span class="badge bg-warning text-dark">Pending Approval</span>
-          {% endif %}
-        </p>
-      </div>
-
-      {% if user == recipe.author or user.is_staff %}
-      <div class="card rounded-4 shadow-sm p-4 border-0">
-        <h6 class="mb-3"><i class="fas fa-cog"></i> Manage</h6>
-        
-        {% if user == recipe.author %}
-        <a class="btn btn-outline-secondary w-100 mb-2" href="{% url 'recipe_edit' recipe.slug %}"><i class="fas fa-edit"></i> Edit Recipe</a>
+        {% if recipe.comments.count > 3 %}
+        <button id="toggleCommentsBtn" class="btn btn-outline-secondary btn-sm mt-2">
+            View More
+        </button>
         {% endif %}
-        
-        {% if user.is_staff and not recipe.approved %}
-        <form method="post" action="{% url 'recipe_approve' recipe.slug %}" class="d-inline w-100">
+
+
+        {% if user.is_authenticated %}
+        <form method="post" class="mt-4">
             {% csrf_token %}
-            <button class="btn btn-success w-100 mb-2"><i class="fas fa-check"></i> Approve Recipe</button>
+            <textarea name="content" class="form-control mb-2" rows="3" placeholder="Write comment..." required></textarea>
+            <button name="comment" class="btn btn-primary btn-sm">Post Comment</button>
         </form>
         {% endif %}
-
-        <form method="post" action="{% url 'recipe_delete' recipe.slug %}" class="d-inline w-100">{% csrf_token %}<button class="btn btn-danger w-100"><i class="fas fa-trash"></i> Delete</button></form>
-      </div>
-      {% endif %}
     </div>
-  </div>
+
 </div>
+
+
+
+<!-- ================================================= -->
+<!-- RIGHT SIDE -->
+<!-- ================================================= -->
+<div class="col-md-4">
+
+    <div class="card rounded-4 shadow-sm p-4 border-0 mb-3">
+        <h6>Recipe Info</h6>
+        <hr>
+        <p><b>Author:</b> {{ recipe.author.username }}</p>
+        <p><b>Category:</b> {{ recipe.category.name|default:"-" }}</p>
+    </div>
+
+
+    {% if user == recipe.author or user.is_staff %}
+    <div class="card rounded-4 shadow-sm p-4 border-0">
+
+        {% if user == recipe.author %}
+        <a href="{% url 'recipe_edit' recipe.slug %}" class="btn btn-outline-secondary w-100 mb-2">Edit</a>
+        {% endif %}
+
+        {% if user.is_staff and not recipe.approved %}
+        <button class="btn btn-success w-100 mb-2 open-approve-modal"
+                data-url="{% url 'recipe_approve' recipe.slug %}">
+            Approve
+        </button>
+        {% endif %}
+
+        <button class="btn btn-danger w-100 open-delete-modal"
+                data-url="{% url 'recipe_delete' recipe.slug %}">
+            Delete
+        </button>
+    </div>
+    {% endif %}
+
+</div>
+</div>
+</div>
+
+
+
+<!-- ================================================= -->
+<!-- STYLE -->
+<!-- ================================================= -->
+<style>
+.bordered-btn {
+    border: 2px solid currentColor !important;
+}
+
+.like-btn:hover {
+    transform: scale(1.05);
+}
+
+.star {
+    font-size: 24px;
+    cursor: pointer;
+    opacity: .25;
+    color: #ffc107;
+    transition: .15s;
+}
+
+.star.active {
+    opacity: 1;
+    transform: scale(1.1);
+}
+/* ===== Disable hover effect for comments ===== */
+.comment-card{
+    transition:none !important;
+    transform:none !important;
+    box-shadow:none !important;
+}
+
+.comment-card:hover{
+    transform:none !important;
+    box-shadow:none !important;
+    border: 2px solid #e9ecef !important;
+}
+
+</style>
+
+
+
+<!-- ================================================= -->
+<!-- JAVASCRIPT -->
+<!-- ================================================= -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+    /* LIKE TOAST */
+    const toast = new bootstrap.Toast(document.getElementById('likeToast'));
+    document.querySelectorAll('.like-form')
+        .forEach(f => f.addEventListener("submit", () => setTimeout(() => toast.show(), 200)));
+
+
+    /* COMMENTS TOGGLE */
+    const btn = document.getElementById("toggleCommentsBtn");
+    if(btn){
+        btn.onclick = () => {
+            document.querySelectorAll(".extra-comment").forEach(el => el.classList.toggle("d-none"));
+            btn.innerText = btn.innerText === "View More" ? "View Less" : "View More";
+        };
+    }
+
+
+    /* ⭐ CLICK ONLY RATING */
+    const stars = document.querySelectorAll(".star");
+    const input = document.getElementById("ratingInput");
+
+    function setRating(val){
+        input.value = val;
+        stars.forEach(s => {
+            s.classList.toggle("active", parseInt(s.dataset.value) <= val);
+        });
+    }
+
+    stars.forEach(star => {
+        star.addEventListener("click", () => {
+            setRating(star.dataset.value);
+        });
+    });
+
+    /* show saved rating on load */
+    setRating(parseInt(input.value));
+});
+</script>
+
 {% endblock %}

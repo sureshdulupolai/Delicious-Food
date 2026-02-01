@@ -2,6 +2,30 @@
 {% load static %}
 {% block title %}Recipes{% endblock %}
 {% block content %}
+<style>
+  .search-input {
+    width: 320px;   /* bigger width */
+    height: 45px;  /* slightly taller */
+    font-size: 15px;
+}
+
+.category-select {
+    width: 200px;
+    height: 45px;
+    font-size: 13px;
+    color: #222;         /* fix invisible text */
+    background-color: #fff;
+}
+
+.search-btn {
+    height: 42px;
+    width: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+</style>
 <div class="container py-5">
   <div class="mb-5">
     <div class="row align-items-center">
@@ -9,12 +33,39 @@
         <h2><i class="fas fa-book-open"></i> Browse Recipes</h2>
       </div>
       <div class="col-md-6">
-        <form method="get" class="d-flex gap-2">
-          <input type="text" name="q" class="form-control rounded-pill" placeholder="Search recipes...">
-          <button class="btn btn-primary">
-            <i class="fas fa-search"></i> Search
-          </button>
-        </form>
+        <form method="get" class="d-flex gap-3 align-items-center">
+
+  <!-- 🔍 Search input -->
+  <input
+    type="text"
+    name="q"
+    value="{{ request.GET.q }}"
+    placeholder="Search recipes..."
+    class="form-control rounded-pill px-4 search-input"
+  >
+
+  <!-- 🗂 Category dropdown -->
+  <select
+    name="category"
+    class="form-select rounded-pill px-4 category-select"
+  >
+    <option value="">All Categories</option>
+    {% for c in categories %}
+      <option value="{{ c.slug }}"
+        {% if request.GET.category == c.slug %}selected{% endif %}>
+        {{ c.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <!-- 🔎 Icon button -->
+  <button class="btn btn-primary rounded-circle search-btn">
+    <i class="fas fa-search"></i>
+  </button>
+
+</form>
+
+        
       </div>
     </div>
   </div>

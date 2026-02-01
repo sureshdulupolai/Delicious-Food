@@ -17,18 +17,37 @@ def home(request):
 
 def recipe_list(request):
     qs = Recipe.objects.filter(approved=True).order_by('-created_at')
+    categories = Category.objects.all()
+
     category = request.GET.get('category')
     q = request.GET.get('q')
+
     if category:
         qs = qs.filter(category__slug=category)
+
     if q:
-        qs = qs.filter(Q(title__icontains=q) | Q(short_description__icontains=q) | Q(ingredients__icontains=q))
-    return render(request, 'recipes/list.html', {'recipes': qs})
+        qs = qs.filter(
+            Q(title__icontains=q) |
+            Q(short_description__icontains=q) |
+            Q(ingredients__icontains=q)
+        )
+
+    return render(request, 'recipes/list.html', {
+        'recipes': qs,
+        'categories': categories
+    })
 
 
 def recipe_detail(request, slug):
-    recipe = get_object_or_404(Recipe, slug=slug, approved=True)
+    recipe = get_object_or_404(
+        Recipe.objects.filter(
+            Q(approved=True) | Q(author=request.user)
+        ),
+        slug=slug
+    )
+
     comment_form = CommentForm()
+
     if request.method == 'POST':
         if 'comment' in request.POST:
             if not request.user.is_authenticated:
@@ -42,7 +61,8 @@ def recipe_detail(request, slug):
                 comment.save()
                 messages.success(request, 'Comment added')
                 return redirect('recipe_detail', slug=slug)
-        if 'rate' in request.POST:
+
+        elif 'rate' in request.POST:
             if not request.user.is_authenticated:
                 messages.error(request, 'Login required to rate')
                 return redirect('login')
@@ -50,9 +70,10 @@ def recipe_detail(request, slug):
             Rating.objects.update_or_create(recipe=recipe, user=request.user, defaults={'score': score})
             messages.success(request, 'Rating saved')
             return redirect('recipe_detail', slug=slug)
-        if 'like' in request.POST:
+
+        elif 'like' in request.POST or 'dislike' in request.POST:
             if not request.user.is_authenticated:
-                messages.error(request, 'Login required to like')
+                messages.error(request, 'Login required')
                 return redirect('login')
             if request.user in recipe.likes.all():
                 recipe.likes.remove(request.user)
@@ -60,24 +81,42 @@ def recipe_detail(request, slug):
                 recipe.likes.add(request.user)
             return redirect('recipe_detail', slug=slug)
 
-    return render(request, 'recipes/detail.html', {'recipe': recipe, 'comment_form': comment_form})
+    # Check if current user liked this recipe
+    user_liked = request.user.is_authenticated and request.user in recipe.likes.all()
+
+    user_rating = 0
+    if request.user.is_authenticated:
+        rating_obj = Rating.objects.filter(recipe=recipe, user=request.user).first()
+        if rating_obj:
+            user_rating = rating_obj.score
+
+    return render(request, 'recipes/detail.html', {
+        'recipe': recipe,
+        'comment_form': comment_form,
+        'user_liked': user_liked,
+        'user_rating': user_rating,   # ⭐ ADD THIS
+    })
+
 
 
 @login_required
 def recipe_create(request):
     if request.method == 'POST':
-        form = RecipeForm(request.POST)
+        form = RecipeForm(request.POST, request.FILES)
         if form.is_valid():
             recipe = form.save(commit=False)
             recipe.author = request.user
-            # mark pending approval
             recipe.approved = False
             recipe.save()
+
             messages.success(request, 'Recipe submitted for review')
-            return redirect('recipe_detail', slug=recipe.slug)
+            return redirect('recipe_list')
+
     else:
         form = RecipeForm()
+
     return render(request, 'recipes/form.html', {'form': form, 'title': 'Add Recipe'})
+
 
 
 @login_required

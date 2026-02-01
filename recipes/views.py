@@ -6,6 +6,7 @@ from .models import Recipe, Category, Comment, Rating, Feedback, UserProfile
 from .forms import RecipeForm, CommentForm, RatingForm, RegisterForm, FeedbackForm, DeveloperRegisterForm, UserProfileForm, UserInfoForm, ChangePasswordForm
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.http import HttpResponseForbidden
 
 
 def home(request):
@@ -95,16 +96,63 @@ def recipe_edit(request, slug):
 
 @login_required
 def recipe_delete(request, slug):
-    recipe = get_object_or_404(Recipe, slug=slug, author=request.user)
+    recipe = get_object_or_404(Recipe, slug=slug)
+    if request.user != recipe.author and not request.user.is_staff:
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden()
+
     if request.method == 'POST':
         recipe.delete()
         messages.success(request, 'Recipe deleted')
+        if request.user.is_staff:
+            return redirect('admin_dashboard')
         return redirect('recipe_list')
     return render(request, 'recipes/confirm_delete.html', {'object': recipe})
 
 
+@login_required
+def recipe_approve(request, slug):
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+
+    recipe = get_object_or_404(Recipe, slug=slug)
+
+    recipe.approved = True
+    recipe.save()
+
+    messages.success(request, 'Recipe approved successfully!')
+    return redirect('admin_dashboard')
+
+
+@login_required
+def recipe_preview(request, slug):
+    if not request.user.is_staff:
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden()
+
+    recipe = get_object_or_404(Recipe, slug=slug)
+    comment_form = CommentForm()
+
+    return render(request, 'recipes/detail.html', {
+        'recipe': recipe,
+        'comment_form': comment_form
+    })
+
+
+
+
+
 def search(request):
+    if request.method == 'POST':
+        # Get the search query from the request
+        q = request.POST.get('q', '')
+
+        # Redirect to the search result page with the query as a parameter
+        return redirect(f'/recipes/?q={q}')
+
+    # If the request is a GET, fall back to the recipe_list view
     return recipe_list(request)
+
 
 
 def register_view(request):

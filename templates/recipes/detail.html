@@ -80,13 +80,30 @@
         <p class="small mb-2"><strong>Author:</strong> {{ recipe.author.username }}</p>
         <p class="small mb-2"><strong>Category:</strong> {{ recipe.category.name|default:"Uncategorized" }}</p>
         <p class="small mb-2"><strong>Created:</strong> {{ recipe.created_at|date:"d M Y" }}</p>
-        <p class="small"><strong>Status:</strong> <span class="badge bg-success">Approved</span></p>
+        <p class="small"><strong>Status:</strong> 
+          {% if recipe.approved %}
+            <span class="badge bg-success">Approved</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">Pending Approval</span>
+          {% endif %}
+        </p>
       </div>
 
-      {% if user == recipe.author %}
+      {% if user == recipe.author or user.is_staff %}
       <div class="card rounded-4 shadow-sm p-4 border-0">
         <h6 class="mb-3"><i class="fas fa-cog"></i> Manage</h6>
+        
+        {% if user == recipe.author %}
         <a class="btn btn-outline-secondary w-100 mb-2" href="{% url 'recipe_edit' recipe.slug %}"><i class="fas fa-edit"></i> Edit Recipe</a>
+        {% endif %}
+        
+        {% if user.is_staff and not recipe.approved %}
+        <form method="post" action="{% url 'recipe_approve' recipe.slug %}" class="d-inline w-100">
+            {% csrf_token %}
+            <button class="btn btn-success w-100 mb-2"><i class="fas fa-check"></i> Approve Recipe</button>
+        </form>
+        {% endif %}
+
         <form method="post" action="{% url 'recipe_delete' recipe.slug %}" class="d-inline w-100">{% csrf_token %}<button class="btn btn-danger w-100"><i class="fas fa-trash"></i> Delete</button></form>
       </div>
       {% endif %}

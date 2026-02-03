@@ -1,29 +1,20 @@
 from django.contrib import admin
-from .models import Category, Recipe, Comment, Rating, Feedback
+from .models import Recipe, Category, Comment, Rating, Feedback, UserProfile, SystemErrorLog, DeveloperInviteCode
 
+admin.site.register(Recipe)
+admin.site.register(Category)
+admin.site.register(Comment)
+admin.site.register(Rating)
+admin.site.register(Feedback)
+admin.site.register(UserProfile)
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('name',)}
+@admin.register(SystemErrorLog)
+class SystemErrorLogAdmin(admin.ModelAdmin):
+    list_display = ('error_message', 'user', 'path', 'created_at', 'resolved')
+    list_filter = ('resolved', 'created_at')
+    readonly_fields = ('traceback',)
 
-
-@admin.register(Recipe)
-class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'category', 'approved', 'created_at')
-    list_filter = ('approved', 'category')
-    search_fields = ('title', 'short_description', 'ingredients')
-
-
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'user', 'created_at')
-
-
-@admin.register(Rating)
-class RatingAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'user', 'score')
-
-
-@admin.register(Feedback)
-class FeedbackAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'created_at')
+@admin.register(DeveloperInviteCode)
+class DeveloperInviteCodeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'is_active', 'used_by', 'created_at')
+    list_filter = ('is_active',)

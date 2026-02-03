@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Warning{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-75 py-5" style="min-height: 70vh;">
+    <div class="text-center">
+        <div class="mb-4 text-warning opacity-50">
+            <i class="fas fa-shield-alt" style="font-size: 8rem;"></i>
+        </div>
+        <h1 class="display-5 fw-bold text-dark mb-3">System Protection Triggered</h1>
+        <p class="lead text-muted mb-5">An unexpected system event occurred and was logged for review.<br>Your account
+            is safe.</p>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'home' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">
+                <i class="fas fa-home me-2"></i> Continue
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Developer Console{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h2 fw-bold text-dark"><i class="fas fa-terminal me-2 text-primary"></i>System Monitor</h1>
+                <p class="text-muted">Real-time error logging and diagnostics</p>
+            </div>
+            <div>
+                {% if showing_resolved %}
+                <a href="{% url 'error_dashboard' %}" class="btn btn-outline-secondary rounded-pill"><i
+                        class="fas fa-filter me-2"></i>Show Active</a>
+                {% else %}
+                <a href="?resolved=true" class="btn btn-outline-secondary rounded-pill"><i
+                        class="fas fa-check-circle me-2"></i>Show Resolved</a>
+                {% endif %}
+                <span class="badge bg-danger rounded-pill px-3 py-2 ms-2">{{ errors|length }} Issues</span>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-white p-4 border-bottom">
+                <div class="row fw-bold text-muted text-uppercase small">
+                    <div class="col-md-1">Status</div>
+                    <div class="col-md-5">Error</div>
+                    <div class="col-md-2">Path</div>
+                    <div class="col-md-2">User</div>
+                    <div class="col-md-2 text-end">Action</div>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for error in errors %}
+                <div class="list-group-item p-4 border-bottom hover-bg-light transition-all">
+                    <div class="row align-items-center">
+                        <div class="col-md-1">
+                            <span
+                                class="badge {% if error.resolved %}bg-success{% else %}bg-danger{% endif %} rounded-pill">
+                                {{ error.status_code }}
+                            </span>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="text-truncate fw-bold text-dark mb-1" title="{{ error.error_message }}">
+                                {{ error.error_message }}
+                            </div>
+                            <small class="text-muted"><i class="far fa-clock me-1"></i> {{ error.created_at|timesince }}
+                                ago</small>
+                        </div>
+                        <div class="col-md-2">
+                            <code
+                                class="text-primary bg-light px-2 py-1 rounded small">{{ error.method }} {{ error.path }}</code>
+                        </div>
+                        <div class="col-md-2">
+                            {% if error.user %}
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle bg-primary text-white small me-2"
+                                    style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+                                    {{ error.user.username.0|upper }}
+                                </div>
+                                <span class="small text-dark">{{ error.user.username }}</span>
+                            </div>
+                            {% else %}
+                            <span class="badge bg-light text-muted">Anonymous</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button class="btn btn-sm btn-outline-dark rounded-pill px-3" data-bs-toggle="modal"
+                                data-bs-target="#traceModal{{ error.id }}">
+                                Trace
+                            </button>
+                            {% if not error.resolved %}
+                            <form action="{% url 'resolve_error' error.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 ms-1">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="traceModal{{ error.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg rounded-4">
+                            <div class="modal-header border-0 bg-dark text-white rounded-top-4">
+                                <h5 class="modal-title font-monospace"><i class="fas fa-bug me-2"></i> Stack Trace</h5>
+                                <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body bg-light p-0">
+                                <pre class="p-4 m-0 text-danger small"
+                                    style="max-height: 500px; overflow-y: auto;">{{ error.traceback }}</pre>
+                            </div>
+                            <div class="modal-footer border-0 p-3">
+                                <button type="button" class="btn btn-secondary rounded-pill px-4"
+                                    data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5">
+                    <div class="mb-3 text-success opacity-50">
+                        <i class="fas fa-check-circle" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="text-dark">All Systems Operational</h4>
+                    <p class="text-muted">No errors logged.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

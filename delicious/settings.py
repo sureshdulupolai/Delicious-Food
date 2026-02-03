@@ -27,6 +27,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'recipes.middleware.RoleMiddleware',
+    'recipes.middleware.ErrorLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'delicious.urls'
@@ -100,3 +102,5 @@ SITE_NAME = 'Delicious'
 # Invite code used to protect developer/superuser registration page.
 # Change this to a strong secret before using in production.
 DEVELOPER_INVITE_CODE = 'changeme-dev-invite-2026'
+
+DEVELOPER_MASTER_KEY = "security-key-2026"

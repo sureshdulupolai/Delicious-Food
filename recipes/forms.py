@@ -1,5 +1,5 @@
 from django import forms
-from .models import Recipe, Comment, Rating, Feedback, UserProfile
+from .models import Recipe, Comment, Rating, Feedback, UserProfile, DeveloperInviteCode
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -99,9 +99,10 @@ class DeveloperRegisterForm(RegisterForm):
 
     def clean_invite_code(self):
         code = self.cleaned_data.get('invite_code')
-        from django.conf import settings
-        if not getattr(settings, 'DEVELOPER_INVITE_CODE', None) or code != settings.DEVELOPER_INVITE_CODE:
-            raise forms.ValidationError('Invalid invite code.')
+        try:
+            invite = DeveloperInviteCode.objects.get(code=code, is_active=True)
+        except DeveloperInviteCode.DoesNotExist:
+            raise forms.ValidationError('Invalid or used invite code.')
         return code
 
 
@@ -188,3 +189,10 @@ class ChangePasswordForm(forms.Form):
             raise forms.ValidationError('New passwords do not match.')
         
         return cleaned_data
+    
+class DeveloperInviteForm(forms.Form):
+    code = forms.CharField(max_length=50)
+    verify_key = forms.CharField(
+        widget=forms.PasswordInput,
+        label="Security Key"
+    )

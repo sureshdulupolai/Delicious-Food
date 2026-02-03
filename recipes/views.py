@@ -2,11 +2,15 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from .models import Recipe, Category, Comment, Rating, Feedback, UserProfile
+from .models import Recipe, Category, Comment, Rating, Feedback, UserProfile, SystemErrorLog, DeveloperInviteCode
 from .forms import RecipeForm, CommentForm, RatingForm, RegisterForm, FeedbackForm, DeveloperRegisterForm, UserProfileForm, UserInfoForm, ChangePasswordForm
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
+from django.views.decorators.http import require_POST
+from .models import DeveloperInviteCode
+from .forms import DeveloperInviteForm
+from django.conf import settings
 
 
 def home(request):
@@ -95,9 +99,8 @@ def recipe_detail(request, slug):
         'recipe': recipe,
         'comment_form': comment_form,
         'user_liked': user_liked,
-        'user_rating': user_rating,   # ⭐ ADD THIS
+        'user_rating': user_rating,
     })
-
 
 
 @login_required
@@ -119,7 +122,6 @@ def recipe_create(request):
     return render(request, 'recipes/form.html', {'form': form, 'title': 'Add Recipe'})
 
 
-
 @login_required
 def recipe_edit(request, slug):
     recipe = get_object_or_404(Recipe, slug=slug, author=request.user)
@@ -138,7 +140,6 @@ def recipe_edit(request, slug):
 def recipe_delete(request, slug):
     recipe = get_object_or_404(Recipe, slug=slug)
     if request.user != recipe.author and not request.user.is_staff:
-        from django.http import HttpResponseForbidden
         return HttpResponseForbidden()
 
     if request.method == 'POST':
@@ -156,7 +157,6 @@ def recipe_approve(request, slug):
         return HttpResponseForbidden()
 
     recipe = get_object_or_404(Recipe, slug=slug)
-
     recipe.approved = True
     recipe.save()
 
@@ -167,7 +167,6 @@ def recipe_approve(request, slug):
 @login_required
 def recipe_preview(request, slug):
     if not request.user.is_staff:
-        from django.http import HttpResponseForbidden
         return HttpResponseForbidden()
 
     recipe = get_object_or_404(Recipe, slug=slug)
@@ -179,20 +178,11 @@ def recipe_preview(request, slug):
     })
 
 
-
-
-
 def search(request):
     if request.method == 'POST':
-        # Get the search query from the request
         q = request.POST.get('q', '')
-
-        # Redirect to the search result page with the query as a parameter
         return redirect(f'/recipes/?q={q}')
-
-    # If the request is a GET, fall back to the recipe_list view
     return recipe_list(request)
-
 
 
 def register_view(request):
@@ -200,37 +190,33 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, 'Account created successfully! Please login with your credentials.', extra_tags='success')
+            messages.success(request, 'Account created successfully! Please login.', extra_tags='success')
             return redirect('login')
-        else:
-            # Don't show top-level error message, let form handle it
-            pass
     else:
         form = RegisterForm()
     return render(request, 'auth/register.html', {'form': form})
 
 
 def register_dev_view(request):
-    """Protected developer registration that creates a superuser/staff account when a valid invite code is provided.
-
-    The view uses `DeveloperRegisterForm` which validates `invite_code` against
-    `settings.DEVELOPER_INVITE_CODE`. On success the user is created with
-    `is_staff=True` and `is_superuser=True` and redirected to login.
-    """
     if request.method == 'POST':
         form = DeveloperRegisterForm(request.POST)
         if form.is_valid():
+            code_str = form.cleaned_data['invite_code']
             user = form.save(commit=False)
             user.is_staff = True
             user.is_superuser = True
             user.save()
-            messages.success(request, 'Developer account created. You can now login.', extra_tags='success')
+            
+            invite = DeveloperInviteCode.objects.get(code=code_str)
+            invite.is_active = False
+            invite.used_by = user
+            invite.save()
+
+            messages.success(request, 'Developer account created. You have full access.', extra_tags='success')
             return redirect('login')
-        else:
-            pass
     else:
         form = DeveloperRegisterForm()
-    return render(request, 'auth/register_dev.html', {'form': form})
+    return render(request, 'dev/register.html', {'form': form})
 
 
 def login_view(request):
@@ -265,6 +251,29 @@ def admin_dashboard(request):
     return render(request, 'admin/dashboard.html', {'users': users, 'pending': pending, 'feedbacks': feedbacks})
 
 
+@user_passes_test(staff_check)
+def error_dashboard(request):
+    """Developer only dashboard for monitoring errors."""
+    errors = SystemErrorLog.objects.all().order_by('-created_at')
+    show_resolved = request.GET.get('resolved') == 'true'
+    if not show_resolved:
+        errors = errors.filter(resolved=False)
+    return render(request, 'dev/error_dashboard.html', {'errors': errors, 'showing_resolved': show_resolved})
+
+
+@user_passes_test(staff_check)
+@require_POST
+def resolve_error(request, error_id):
+    error = get_object_or_404(SystemErrorLog, id=error_id)
+    error.delete()
+    messages.success(request, 'Error log resolved and deleted.')
+    return redirect('error_dashboard')
+
+
+# ==========================================
+# CUSTOM HANDLERS
+# ==========================================
+
 def custom_404(request, exception=None):
     return render(request, '404.html', status=404)
 
@@ -275,9 +284,7 @@ def custom_500(request):
 
 @login_required
 def profile_view(request):
-    """User profile page with image upload and two forms for info and password change"""
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
-    # initialize forms so they exist for both GET and POST paths
     profile_form = UserProfileForm(instance=user_profile)
     info_form = UserInfoForm(instance=request.user)
     password_form = ChangePasswordForm(request.user)
@@ -307,10 +314,32 @@ def profile_view(request):
                 messages.success(request, 'Password changed successfully!', extra_tags='success')
                 return redirect('profile')
     
-    
     return render(request, 'auth/profile.html', {
         'profile_form': profile_form,
         'info_form': info_form,
         'password_form': password_form,
         'user_profile': user_profile
     })
+
+
+def developer_invite_add(request):
+    form = DeveloperInviteForm()
+
+    if request.method == "POST":
+        form = DeveloperInviteForm(request.POST)
+
+        if form.is_valid():
+            code = form.cleaned_data["code"]
+            key = form.cleaned_data["verify_key"]
+
+            # 🔐 security check
+            if key != settings.DEVELOPER_MASTER_KEY:
+                messages.error(request, "❌ Wrong security key")
+                return redirect("dev_invite_add")
+
+            DeveloperInviteCode.objects.create(code=code)
+
+            messages.success(request, "✅ Invite code added successfully")
+            return redirect("dev_invite_add")
+
+    return render(request, "dev/add_invite.html", {"form": form})

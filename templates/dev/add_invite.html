@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+
+    <div class="col-md-4">
+
+      <div class="card shadow-lg rounded-4 p-4">
+
+        <h4 class="text-center mb-4 fw-bold">
+          🔐 Add Developer Invite
+        </h4>
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <!-- Invite Code -->
+          <div class="mb-3">
+            <label>Invite Code</label>
+            <input type="text" name="code" class="form-control rounded-3" required>
+          </div>
+
+          <!-- Security Key -->
+          <div class="mb-4 position-relative">
+            <label>Security Key</label>
+            <input type="password" name="verify_key" id="key" class="form-control rounded-3" required>
+
+            <span onclick="toggle()" style="position:absolute;right:15px;top:38px;cursor:pointer">👁</span>
+          </div>
+
+          <button class="btn btn-primary w-100 rounded-3">
+            Save Invite Code
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function toggle(){
+  const k = document.getElementById("key");
+  k.type = k.type === "password" ? "text" : "password";
+}
+</script>
+
+{% endblock %}

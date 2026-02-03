@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Developer Access{% endblock %}
+
+{% block content %}
+<style>
+    .bg-gradient-soft {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .card-glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-control-lg {
+        font-size: 0.95rem;
+        padding-left: 2.5rem !important;
+        /* Space for icon */
+        border-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+
+    .form-control-lg:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        z-index: 5;
+        font-size: 1.1rem;
+    }
+
+    .field-wrapper {
+        position: relative;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+        border: none;
+        color: white;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        color: white;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #475569;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.025em;
+    }
+
+    .eye-toggle {
+        cursor: pointer;
+        color: #94a3b8;
+        transition: color 0.2s;
+        z-index: 10;
+    }
+
+    .eye-toggle:hover {
+        color: #475569;
+    }
+</style>
+
+<div class="min-vh-100 d-flex align-items-center py-5 bg-gradient-soft">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-5">
+
+                <div class="card card-glass shadow-lg rounded-4 overflow-hidden border-0">
+                    <div class="card-body p-5">
+
+                        <div class="text-center mb-5">
+                            <div class="mb-3">
+                                <span
+                                    class="bg-light p-3 rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm"
+                                    style="width: 64px; height: 64px;">
+                                    <i class="fas fa-terminal text-primary" style="font-size: 1.75rem;"></i>
+                                </span>
+                            </div>
+                            <h2 class="fw-bold mb-1 text-dark">Developer Access</h2>
+                            <p class="text-muted small">Initialize your privileged account</p>
+                        </div>
+
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+
+                            {% if form.non_field_errors %}
+                            <div
+                                class="alert alert-danger rounded-3 small border-0 bg-danger bg-opacity-10 text-danger mb-4">
+                                <i class="fas fa-exclamation-circle me-1"></i> {{ form.non_field_errors.0 }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Username -->
+                            <div class="mb-4">
+                                <label class="form-label">USERNAME</label>
+                                <div class="field-wrapper">
+                                    <i class="fas fa-user input-icon"></i>
+                                    {{ form.username }}
+                                </div>
+                                {% if form.username.errors %}
+                                <div class="text-danger small mt-1 ps-1">
+                                    {{ form.username.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-4">
+                                <label class="form-label">EMAIL ADDRESS</label>
+                                <div class="field-wrapper">
+                                    <i class="fas fa-envelope input-icon"></i>
+                                    {{ form.email }}
+                                </div>
+                                {% if form.email.errors %}
+                                <div class="text-danger small mt-1 ps-1">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Password 1 -->
+                            <div class="mb-4">
+                                <label class="form-label">PASSWORD</label>
+                                <div class="input-group">
+                                    <span
+                                        class="input-group-text bg-white border-end-0 rounded-start-4 ps-3 text-secondary"
+                                        style="border-color: #e2e8f0;">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="password" name="{{ form.password1.name }}"
+                                        id="{{ form.password1.id_for_label }}"
+                                        class="form-control form-control-lg border-start-0 rounded-end-0 ps-2 shadow-none"
+                                        placeholder="Create password" style="border-color: #e2e8f0;">
+                                    <span class="input-group-text bg-white border-start-0 rounded-end-4 pe-3"
+                                        style="border-color: #e2e8f0;">
+                                        <i class="fas fa-eye eye-toggle"
+                                            onclick="togglePassword(this, '{{ form.password1.id_for_label }}')"></i>
+                                    </span>
+                                </div>
+                                {% if form.password1.errors %}
+                                <div class="text-danger small mt-1 ps-1">
+                                    {{ form.password1.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Password 2 -->
+                            <div class="mb-4">
+                                <label class="form-label">CONFIRM PASSWORD</label>
+                                <div class="input-group">
+                                    <span
+                                        class="input-group-text bg-white border-end-0 rounded-start-4 ps-3 text-secondary"
+                                        style="border-color: #e2e8f0;">
+                                        <i class="fas fa-check-circle"></i>
+                                    </span>
+                                    <input type="password" name="{{ form.password2.name }}"
+                                        id="{{ form.password2.id_for_label }}"
+                                        class="form-control form-control-lg border-start-0 rounded-end-0 ps-2 shadow-none"
+                                        placeholder="Confirm password" style="border-color: #e2e8f0;">
+                                    <span class="input-group-text bg-white border-start-0 rounded-end-4 pe-3"
+                                        style="border-color: #e2e8f0;">
+                                        <i class="fas fa-eye eye-toggle"
+                                            onclick="togglePassword(this, '{{ form.password2.id_for_label }}')"></i>
+                                    </span>
+                                </div>
+                                {% if form.password2.errors %}
+                                <div class="text-danger small mt-1 ps-1">
+                                    {{ form.password2.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Invite Code -->
+                            <div class="mb-5">
+                                <label class="form-label text-primary">INVITE CODE</label>
+                                <div class="input-group">
+                                    <span
+                                        class="input-group-text bg-white border-end-0 rounded-start-4 ps-3 text-primary"
+                                        style="border-color: #e2e8f0;">
+                                        <i class="fas fa-key"></i>
+                                    </span>
+                                    <input type="password" name="{{ form.invite_code.name }}"
+                                        id="{{ form.invite_code.id_for_label }}"
+                                        class="form-control form-control-lg border-start-0 rounded-end-0 ps-2 shadow-none"
+                                        placeholder="Enter secure code" style="border-color: #e2e8f0;">
+                                    <span class="input-group-text bg-white border-start-0 rounded-end-4 pe-3"
+                                        style="border-color: #e2e8f0;">
+                                        <i class="fas fa-eye eye-toggle"
+                                            onclick="togglePassword(this, '{{ form.invite_code.id_for_label }}')"></i>
+                                    </span>
+                                </div>
+                                {% if form.invite_code.errors %}
+                                <div class="text-danger small mt-1 ps-1">
+                                    {{ form.invite_code.errors.0 }}
+                                </div>
+                                {% endif %}
+                                <div class="form-text text-end mt-1 small">Case sensitive</div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit"
+                                    class="btn btn-gradient btn-lg py-3 rounded-pill fw-bold shadow-lg">
+                                    Initialize Access <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="card-footer bg-light p-4 text-center border-top-0">
+                        <p class="mb-0 text-muted small">Already valid? <a href="{% url 'login' %}"
+                                class="fw-bold text-decoration-none text-primary">Login here</a></p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted small mb-0">&copy; 2026 Delicious App. Secure Environment.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword(icon, fieldId) {
+        const input = document.getElementById(fieldId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+
+    // Add padding to existing inputs rendered by widget tweak (username/email)
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputs = document.querySelectorAll('input[type="text"], input[type="email"]');
+        inputs.forEach(input => {
+            if (!input.classList.contains('form-control-lg')) {
+                input.classList.add('form-control', 'form-control-lg');
+                input.style.placeholder = input.name;
+            }
+        });
+    });
+</script>
+{% endblock %}

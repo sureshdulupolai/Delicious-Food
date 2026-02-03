@@ -98,6 +98,30 @@ class UserProfile(models.Model):
         return f'{self.user.username} Profile'
 
 
+class SystemErrorLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    path = models.CharField(max_length=255)
+    method = models.CharField(max_length=10)
+    error_message = models.TextField()
+    traceback = models.TextField()
+    status_code = models.IntegerField(default=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Error {self.id}: {self.error_message[:50]}..."
+
+
+class DeveloperInviteCode(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    is_active = models.BooleanField(default=True)
+    used_by = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='invite_code')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.code} ({'Active' if self.is_active else 'Used'})"
+
+
 # Signal to create UserProfile when User is created
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

@@ -14,60 +14,75 @@
         <!-- Alerts rendered in base.html to avoid duplicate alerts on the page -->
 
         <form method="post" enctype="multipart/form-data">{% csrf_token %}
-          
+
           <!-- Title -->
           <div class="mb-4">
-            <label class="form-label fw-600"><i class="fas fa-heading" style="color: var(--primary);"></i> Recipe Title *</label>
+            <label class="form-label fw-600"><i class="fas fa-heading" style="color: var(--primary);"></i> Recipe Title
+              *</label>
             {{ form.title }}
-            {% if form.title.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ form.title.errors.0 }}</small>{% endif %}
+            {% if form.title.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{
+              form.title.errors.0 }}</small>{% endif %}
           </div>
 
           <!-- Category -->
           <div class="mb-4">
             <label class="form-label fw-600"><i class="fas fa-list" style="color: var(--primary);"></i> Category</label>
             {{ form.category }}
-            {% if form.category.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ form.category.errors.0 }}</small>{% endif %}
+            {% if form.category.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{
+              form.category.errors.0 }}</small>{% endif %}
           </div>
 
           <!-- Image Upload -->
           <div class="mb-4">
-            <label class="form-label fw-600"><i class="fas fa-image" style="color: var(--primary);"></i> Recipe Photo</label>
-            <div class="border-2 border-dashed rounded-3 p-4 text-center bg-light" id="imageDropZone" style="border-color: #ddd; cursor: pointer; transition: all 0.2s;">
+            <label class="form-label fw-600"><i class="fas fa-image" style="color: var(--primary);"></i> Recipe
+              Photo</label>
+            <div class="border-2 border-dashed rounded-3 p-4 text-center bg-light" id="imageDropZone"
+              style="border-color: #ddd; cursor: pointer; transition: all 0.2s;">
               <input type="file" name="image" id="imageInput" class="d-none" accept="image/*">
               <div id="uploadPrompt">
-                <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <i class="fas fa-cloud-upload-alt"
+                  style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
                 <p class="mb-1"><strong>Click to upload or drag & drop</strong></p>
                 <p class="text-muted small">PNG, JPG, GIF up to 10MB</p>
               </div>
             </div>
             <div id="imagePreview" class="mt-3" style="display: none;">
-              <img id="previewImg" src="#" alt="Preview" class="rounded-3 shadow-sm" style="max-width: 100%; max-height: 300px;">
-              <button type="button" class="btn btn-sm btn-danger mt-2" id="removeImage"><i class="fas fa-times"></i> Remove</button>
+              <img id="previewImg" src="#" alt="Preview" class="rounded-3 shadow-sm"
+                style="max-width: 100%; max-height: 300px;">
+              <button type="button" class="btn btn-sm btn-danger mt-2" id="removeImage"><i class="fas fa-times"></i>
+                Remove</button>
             </div>
           </div>
 
           <!-- Short Description -->
           <div class="mb-4">
-            <label class="form-label fw-600"><i class="fas fa-quote-left" style="color: var(--primary);"></i> Description *</label>
+            <label class="form-label fw-600"><i class="fas fa-quote-left" style="color: var(--primary);"></i>
+              Description *</label>
             {{ form.short_description }}
-            {% if form.short_description.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ form.short_description.errors.0 }}</small>{% endif %}
+            {% if form.short_description.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i>
+              {{ form.short_description.errors.0 }}</small>{% endif %}
             <small class="text-muted d-block mt-2">A brief summary of your recipe (max 255 characters)</small>
           </div>
 
           <!-- Ingredients -->
           <div class="mb-4">
-            <label class="form-label fw-600"><i class="fas fa-list-ul" style="color: var(--primary);"></i> Ingredients *</label>
+            <label class="form-label fw-600"><i class="fas fa-list-ul" style="color: var(--primary);"></i> Ingredients
+              *</label>
             {{ form.ingredients }}
-            {% if form.ingredients.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ form.ingredients.errors.0 }}</small>{% endif %}
+            {% if form.ingredients.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{
+              form.ingredients.errors.0 }}</small>{% endif %}
             <small class="text-muted d-block mt-2">One ingredient per line (e.g., "2 cups flour", "1 tsp salt")</small>
           </div>
 
           <!-- Steps -->
           <div class="mb-4">
-            <label class="form-label fw-600"><i class="fas fa-shoe-prints" style="color: var(--primary);"></i> Instructions *</label>
+            <label class="form-label fw-600"><i class="fas fa-shoe-prints" style="color: var(--primary);"></i>
+              Instructions *</label>
             {{ form.steps }}
-            {% if form.steps.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ form.steps.errors.0 }}</small>{% endif %}
-            <small class="text-muted d-block mt-2">Number your steps (e.g., "1. Preheat oven...", "2. Mix ingredients...")</small>
+            {% if form.steps.errors %}<small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{
+              form.steps.errors.0 }}</small>{% endif %}
+            <small class="text-muted d-block mt-2">Number your steps (e.g., "1. Preheat oven...", "2. Mix
+              ingredients...")</small>
           </div>
 
           <button type="submit" class="btn btn-primary btn-lg w-100 mt-5" style="font-weight: 600;">
@@ -79,7 +94,8 @@
 
     <!-- Recipe Tips Sidebar -->
     <div class="col-md-5">
-      <div class="card border-0 shadow-sm p-4" style="border-radius: 20px; background: linear-gradient(135deg, rgba(111, 45, 189, 0.05), rgba(217, 70, 166, 0.05));">
+      <div class="card border-0 shadow-sm p-4"
+        style="border-radius: 20px; background: linear-gradient(135deg, rgba(111, 45, 189, 0.05), rgba(217, 70, 166, 0.05));">
         <h5 class="mb-3"><i class="fas fa-lightbulb"></i> Tips for Great Recipes</h5>
         <ul class="list-unstyled">
           <li class="mb-3"><strong>✓ Good Title</strong> - Clear and descriptive (e.g., "Chocolate Chip Cookies")</li>
@@ -92,85 +108,93 @@
 
       <div class="card border-0 shadow-sm p-4 mt-4" style="border-radius: 20px;">
         <h6 class="mb-2"><i class="fas fa-info-circle"></i> Note</h6>
-        <p class="small text-muted mb-0">Your recipe will be reviewed by our team before going live. Quality content is approved faster!</p>
+        <p class="small text-muted mb-0">Your recipe will be reviewed by our team before going live. Quality content is
+          approved faster!</p>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const dropZone = document.getElementById('imageDropZone');
-  const imageInput = document.getElementById('imageInput');
-  const imagePreview = document.getElementById('imagePreview');
-  const previewImg = document.getElementById('previewImg');
-  const uploadPrompt = document.getElementById('uploadPrompt');
-  const removeBtn = document.getElementById('removeImage');
+  document.addEventListener('DOMContentLoaded', function () {
+    const dropZone = document.getElementById('imageDropZone');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const removeBtn = document.getElementById('removeImage');
 
-  // Click to upload
-  dropZone.addEventListener('click', () => imageInput.click());
-
-  // Drag and drop
-  dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.style.borderColor = 'var(--primary)';
-    dropZone.style.backgroundColor = '#f3e8ff';
-  });
-
-  dropZone.addEventListener('dragleave', () => {
-    dropZone.style.borderColor = '#ddd';
-    dropZone.style.backgroundColor = '#f9f9f9';
-  });
-
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.style.borderColor = '#ddd';
-    dropZone.style.backgroundColor = '#f9f9f9';
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      imageInput.files = files;
-      displayPreview(files[0]);
-    }
-  });
-
-  // File input change
-  imageInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-      displayPreview(e.target.files[0]);
-    }
-  });
-
-  function displayPreview(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewImg.src = e.target.result;
+    // If image already exists (edit mode)
+    {% if form.instance.image %}
+    const existingImageUrl = "{{ form.instance.image.url }}";
+    if (existingImageUrl) {
+      previewImg.src = existingImageUrl;
       imagePreview.style.display = 'block';
       uploadPrompt.style.display = 'none';
+    }
+    {% endif %}
+
+    // Click to upload
+    dropZone.addEventListener('click', () => imageInput.click());
+
+    // Drag and drop
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = 'var(--primary)';
+      dropZone.style.backgroundColor = '#f3e8ff';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
       dropZone.style.borderColor = '#ddd';
-    };
-    reader.readAsDataURL(file);
-  }
+      dropZone.style.backgroundColor = '#f9f9f9';
+    });
 
-  removeBtn.addEventListener('click', () => {
-    imageInput.value = '';
-    imagePreview.style.display = 'none';
-    uploadPrompt.style.display = 'block';
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#ddd';
+      dropZone.style.backgroundColor = '#f9f9f9';
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        imageInput.files = files;
+        displayPreview(files[0]);
+      }
+    });
+
+    // File input change
+    imageInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        displayPreview(e.target.files[0]);
+      }
+    });
+
+    function displayPreview(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        imagePreview.style.display = 'block';
+        uploadPrompt.style.display = 'none';
+        dropZone.style.borderColor = '#ddd';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    removeBtn.addEventListener('click', () => {
+      imageInput.value = '';
+      imagePreview.style.display = 'none';
+      uploadPrompt.style.display = 'block';
+    });
+
+    // (Legacy check removed)
   });
-
-  // If image already exists (edit mode)
-  if (imageInput.value) {
-    uploadPrompt.style.display = 'none';
-    imagePreview.style.display = 'block';
-  }
-});
 </script>
 
 <style>
-.border-2 {
-  border-width: 2px !important;
-}
-.border-dashed {
-  border-style: dashed !important;
-}
+  .border-2 {
+    border-width: 2px !important;
+  }
+
+  .border-dashed {
+    border-style: dashed !important;
+  }
 </style>
 {% endblock %}

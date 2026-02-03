@@ -124,7 +124,7 @@ def recipe_create(request):
 def recipe_edit(request, slug):
     recipe = get_object_or_404(Recipe, slug=slug, author=request.user)
     if request.method == 'POST':
-        form = RecipeForm(request.POST, instance=recipe)
+        form = RecipeForm(request.POST, request.FILES, instance=recipe)
         if form.is_valid():
             form.save()
             messages.success(request, 'Recipe updated')

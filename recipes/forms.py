@@ -12,7 +12,7 @@ class RecipeForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Recipe name'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
-            'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*', 'id': 'imageInput'}),
             'short_description': forms.Textarea(attrs={'class': 'form-control', 'rows':2, 'placeholder': 'Brief description...'}),
             'ingredients': forms.Textarea(attrs={'class': 'form-control', 'rows':6, 'placeholder': 'One ingredient per line'}),
             'steps': forms.Textarea(attrs={'class': 'form-control', 'rows':8, 'placeholder': 'Number your steps: 1. ... 2. ...'}),

@@ -1,0 +1,136 @@
+You are a senior full-stack engineer + senior UI/UX designer.
+
+Your job is to design a COMPLETE, production-ready, premium SaaS-level user interface.
+
+IMPORTANT:
+This must NOT look like a student project or AI-generated layout.
+Design should look like a modern startup product such as:
+Stripe, Linear, Notion, Vercel, Framer, Superhuman, or Raycast.
+
+UI quality must feel:
+• premium
+• clean
+• spacious
+• modern
+• professional
+• minimal
+• enterprise-ready
+
+==================================================
+🎯 DESIGN GOAL
+==================================================
+
+Build a BEAUTIFUL and MODERN UI for the following project:
+
+[PASTE MY PROJECT DETAILS HERE]
+
+==================================================
+🎯 STRICT DESIGN RULES (MUST FOLLOW)
+==================================================
+
+Use:
+• Tailwind CSS only (NO Bootstrap)
+• Clean typography (Inter or Poppins)
+• Lucide or Heroicons
+• Card-based layout
+• Soft shadows
+• Rounded-xl or 2xl corners
+• Smooth hover animations
+• Subtle gradients
+• Glassmorphism where needed
+• Proper spacing (p-6 / p-8)
+• Professional color palette
+• Minimal design
+
+Avoid:
+• Bootstrap look
+• Boxy tables
+• Default HTML forms
+• Clutter
+• Over-colored UI
+• Old admin templates
+• Basic student styling
+
+==================================================
+🎯 LAYOUT STYLE
+==================================================
+
+Create SaaS dashboard structure:
+
+• Sidebar navigation
+• Top navbar
+• Content area
+• Card components
+• Stats widgets
+• Modern tables
+• Modals
+• Toast notifications
+• Loading skeletons
+• Responsive design
+
+==================================================
+🎯 COLOR SYSTEM
+==================================================
+
+Primary: #3a86ff
+Accent: #ffbe0b
+Background: #f8fafc
+Cards: white
+Text: gray-800
+Borders: gray-200
+
+Use soft gradients:
+from-blue-500 to-indigo-600
+
+==================================================
+🎯 UI COMPONENTS TO USE
+==================================================
+
+Design modern versions of:
+
+• Hero section
+• Stats cards
+• Data tables
+• Forms with floating labels
+• Drag & drop upload zones
+• Search bars
+• Filters
+• Tabs
+• Modals
+• Progress bars
+• Badges
+• Charts (Chart.js)
+• Dark mode toggle
+• Toast notifications
+• Loading animations
+
+==================================================
+🎯 CODE REQUIREMENTS
+==================================================
+
+• Provide FULL working HTML + Tailwind code
+• No pseudo code
+• Clean structure
+• Reusable components
+• Production quality
+• Professional spacing
+• Proper naming
+• Modular sections
+• Comments included
+
+==================================================
+🎯 OUTPUT
+==================================================
+
+Generate:
+
+1. Folder structure
+2. All pages
+3. All templates
+4. CSS/Tailwind setup
+5. JS interactions
+6. Professional layout
+7. Ready to run code
+
+The final result must look like a premium startup SaaS dashboard,
+NOT like a college or AI-generated template.

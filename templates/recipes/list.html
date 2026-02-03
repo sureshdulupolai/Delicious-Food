@@ -4,27 +4,29 @@
 {% block content %}
 <style>
   .search-input {
-    width: 320px;   /* bigger width */
-    height: 45px;  /* slightly taller */
+    width: 320px;
+    /* bigger width */
+    height: 45px;
+    /* slightly taller */
     font-size: 15px;
-}
+  }
 
-.category-select {
+  .category-select {
     width: 200px;
     height: 45px;
     font-size: 13px;
-    color: #222;         /* fix invisible text */
+    color: #222;
+    /* fix invisible text */
     background-color: #fff;
-}
+  }
 
-.search-btn {
+  .search-btn {
     height: 42px;
     width: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
+  }
 </style>
 <div class="container py-5">
   <div class="mb-5">
@@ -35,82 +37,78 @@
       <div class="col-md-6">
         <form method="get" class="d-flex gap-3 align-items-center">
 
-  <!-- 🔍 Search input -->
-  <input
-    type="text"
-    name="q"
-    value="{{ request.GET.q }}"
-    placeholder="Search recipes..."
-    class="form-control rounded-pill px-4 search-input"
-  >
+          <!-- 🔍 Search input -->
+          <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search recipes..."
+            class="form-control rounded-pill px-4 search-input">
 
-  <!-- 🗂 Category dropdown -->
-  <select
-    name="category"
-    class="form-select rounded-pill px-4 category-select"
-  >
-    <option value="">All Categories</option>
-    {% for c in categories %}
-      <option value="{{ c.slug }}"
-        {% if request.GET.category == c.slug %}selected{% endif %}>
-        {{ c.name }}
-      </option>
-    {% endfor %}
-  </select>
+          <!-- 🗂 Category dropdown -->
+          <select name="category" class="form-select rounded-pill px-4 category-select">
+            <option value="">All Categories</option>
+            {% for c in categories %}
+            <option value="{{ c.slug }}" {% if request.GET.category == c.slug %}selected{% endif %}>
+              {{ c.name }}
+            </option>
+            {% endfor %}
+          </select>
 
-  <!-- 🔎 Icon button -->
-  <button class="btn btn-primary rounded-circle search-btn">
-    <i class="fas fa-search"></i>
-  </button>
+          <!-- 🔎 Icon button -->
+          <button class="btn btn-primary rounded-circle search-btn">
+            <i class="fas fa-search"></i>
+          </button>
 
-</form>
+        </form>
 
-        
+
       </div>
     </div>
   </div>
 
   <div class="row g-4">
     {% if recipes %}
-      {% for r in recipes %}
-      <div class="col-md-4">
-        <div class="card rounded-4 shadow-sm overflow-hidden h-100 border-0">
-          {% if r.image %}
-          <div style="height: 200px; overflow: hidden;">
-            <img src="{{ r.image.url }}" alt="{{ r.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+    {% for r in recipes %}
+    <div class="col-md-4">
+      <div class="card rounded-4 shadow-sm overflow-hidden h-100 border-0">
+        {% if r.image %}
+        <div style="height: 200px; overflow: hidden;">
+          <img src="{{ r.image.url }}" alt="{{ r.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        {% else %}
+        <div
+          style="height: 200px; background: linear-gradient(135deg, #f3e8ff 0%, #ffd6e8 100%); display: flex; align-items: center; justify-content: center; color: #999;">
+          <i class="fas fa-image" style="font-size: 3rem;"></i>
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <span class="badge bg-info mb-2">{{ r.category.name|default:"Uncategorized" }}</span>
+          <h5 class="card-title fw-700">{{ r.title }}</h5>
+          <p class="text-muted small">{{ r.short_description }}</p>
+          <div class="d-flex justify-content-between align-items-center mt-3 mb-3" style="font-size: 0.9rem;">
+            <span class="text-muted">
+              <i class="fas fa-user"></i> {{ r.author.username }}
+            </span>
+            <span class="text-warning">
+              <i class="fas fa-star"></i> {{ r.avg_rating }}
+              <p>{{ r.image }}</p>
+<p>{{ r.image.url }}</p>
+
+            </span>
           </div>
-          {% else %}
-          <div style="height: 200px; background: linear-gradient(135deg, #f3e8ff 0%, #ffd6e8 100%); display: flex; align-items: center; justify-content: center; color: #999;">
-            <i class="fas fa-image" style="font-size: 3rem;"></i>
-          </div>
-          {% endif %}
-          <div class="card-body">
-            <span class="badge bg-info mb-2">{{ r.category.name|default:"Uncategorized" }}</span>
-            <h5 class="card-title fw-700">{{ r.title }}</h5>
-            <p class="text-muted small">{{ r.short_description }}</p>
-            <div class="d-flex justify-content-between align-items-center mt-3 mb-3" style="font-size: 0.9rem;">
-              <span class="text-muted">
-                <i class="fas fa-user"></i> {{ r.author.username }}
-              </span>
-              <span class="text-warning">
-                <i class="fas fa-star"></i> {{ r.avg_rating }}
-              </span>
-            </div>
-            <a href="{% url 'recipe_detail' r.slug %}" class="btn btn-sm btn-primary w-100">
-              <i class="fas fa-arrow-right"></i> View Recipe
-            </a>
-          </div>
+          <a href="{% url 'recipe_detail' r.slug %}" class="btn btn-sm btn-primary w-100">
+            <i class="fas fa-arrow-right"></i> View Recipe
+          </a>
         </div>
       </div>
-      {% endfor %}
+    </div>
+    {% endfor %}
     {% else %}
-      <div class="col-12">
-        <div class="text-center py-5">
-          <i class="fas fa-inbox" style="font-size: 3rem; color: #ddd;"></i>
-          <p class="lead text-muted mt-3">No recipes found</p>
-          <p class="text-muted">Be the first to <a href="{% url 'recipe_create' %}" class="auth-link">share a recipe</a></p>
-        </div>
+    <div class="col-12">
+      <div class="text-center py-5">
+        <i class="fas fa-inbox" style="font-size: 3rem; color: #ddd;"></i>
+        <p class="lead text-muted mt-3">No recipes found</p>
+        <p class="text-muted">Be the first to <a href="{% url 'recipe_create' %}" class="auth-link">share a recipe</a>
+        </p>
       </div>
+    </div>
     {% endif %}
   </div>
 </div>

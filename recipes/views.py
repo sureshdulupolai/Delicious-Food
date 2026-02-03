@@ -34,7 +34,8 @@ def recipe_list(request):
 
     return render(request, 'recipes/list.html', {
         'recipes': qs,
-        'categories': categories
+        'categories': categories,
+        'selected_category': category,
     })
 
 
